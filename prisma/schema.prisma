@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  email      String   @unique
+  name       String?
+  password   String?
+  providerId String?
+  provider   String?
+  likes      Like[]
+  reviews    Review[]
+  orders     Order[]
+  image      String?
+  role       Role     @default(USER)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model BillBoard {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  image       String
+  name        String
+  description String
+  products    Products[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Category {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  value     String
+  products  Products[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Color {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  value     String
+  products  Products[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Size {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  value     String
+  products  Products[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Products {
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  price       String
+  banner      String
+  images      ProductImages[]
+  likes       Like[]
+  reviews     Review[]
+  orders      Order[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  BillBoard   BillBoard?      @relation(fields: [billBoardId], references: [id])
+  billBoardId String?         @db.ObjectId
+  Category    Category?       @relation(fields: [categoryId], references: [id])
+  categoryId  String?         @db.ObjectId
+  Color       Color?          @relation(fields: [colorId], references: [id])
+  colorId     String?         @db.ObjectId
+  Size        Size?           @relation(fields: [sizeId], references: [id])
+  sizeId      String?         @db.ObjectId
+}
+
+model ProductImages {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  image      String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  Products   Products? @relation(fields: [productsId], references: [id])
+  productsId String?   @db.ObjectId
+}
+
+model Like {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  Products   Products? @relation(fields: [productsId], references: [id])
+  productsId String?   @db.ObjectId
+  User       User?     @relation(fields: [userId], references: [id])
+  userId     String?   @db.ObjectId
+}
+
+model Review {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  review     String
+  rating     Int
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  Products   Products? @relation(fields: [productsId], references: [id])
+  productsId String?   @db.ObjectId
+  User       User?     @relation(fields: [userId], references: [id])
+  userId     String?   @db.ObjectId
+}
+
+model Order {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  isPaid     Boolean   @default(false)
+  paidAt     DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  User       User?     @relation(fields: [userId], references: [id])
+  userId     String?   @db.ObjectId
+  Products   Products? @relation(fields: [productsId], references: [id])
+  productsId String?   @db.ObjectId
+}
+
+enum Role {
+  USER
+  ADMIN
+}
